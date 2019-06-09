@@ -8,7 +8,6 @@
             <column name="id" type="long" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="height" type="int"/>
             <column name="data" type="varchar(50)"/>
             <column name="parent" type="long">
                 <constraints referencedTableName="nodes"
