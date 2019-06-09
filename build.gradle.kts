@@ -16,6 +16,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-jersey")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework:spring-webmvc")
 
     compile("com.h2database", "h2", "1.4.199")
     compile("org.liquibase", "liquibase-core", "3.6.3")

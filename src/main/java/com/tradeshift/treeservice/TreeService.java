@@ -2,7 +2,6 @@ package com.tradeshift.treeservice;
 
 import com.tradeshift.treeservice.dao.TreeDao;
 import com.tradeshift.treeservice.domain.Node;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,13 +16,17 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Component
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class TreeService {
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final TreeDao treeDao;
 
     private Map<Long, Node> index = new ConcurrentHashMap<>();
     private Node root;
+
+    @Autowired
+    public TreeService(TreeDao treeDao) {
+        this.treeDao = treeDao;
+    }
 
     @PostConstruct
     @Transactional(readOnly = true)
@@ -85,8 +88,8 @@ public class TreeService {
     }
 
     @Transactional
-    public void addSubTree(long parentId, NodeDTO nodeDTO) {
-        Lock writeLock = this.lock.writeLock();
+    public NodeDTO addSubTree(long parentId, NodeDTO nodeDTO) {
+        lock.writeLock().lock();
         try {
             checkNodeExists(parentId);
 
@@ -96,16 +99,17 @@ public class TreeService {
             saveSubTree(newNode);
             parent.addChild(newNode);
             newNode.setNewHeight(parent.getHeight() + 1);
+            return NodeDTO.fromNode(newNode);
         } finally {
-            writeLock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
     @Transactional
-    public void setNewTree(NodeDTO nodeDTO) {
+    public NodeDTO setNewTree(NodeDTO nodeDTO) {
         lock.writeLock().lock();
         try {
-            if(root != null) {
+            if (root != null) {
                 treeDao.deleteAll();
                 index.clear();
             }
@@ -113,6 +117,7 @@ public class TreeService {
             saveSubTree(newNode);
             newNode.setNewHeight(0);
             root = newNode;
+            return NodeDTO.fromNode(root);
         } finally {
             lock.writeLock().unlock();
         }
@@ -122,7 +127,7 @@ public class TreeService {
         treeDao.save(node);
         long parentId = node.getId();
         index.put(parentId, node);
-        for (Node chilren : node.getChilrens()) {
+        for (Node chilren : node.getChildren()) {
             chilren.setParent(parentId);
             saveSubTree(chilren);
         }
@@ -136,7 +141,7 @@ public class TreeService {
 
     private void loadChildNodes(Node parent) {
         List<Node> childNodes = treeDao.findChildNodes(parent.getId());
-        parent.getChilrens().addAll(childNodes);
+        parent.getChildren().addAll(childNodes);
         childNodes.forEach(node -> index.put(node.getId(), node));
         childNodes.forEach(this::loadChildNodes);
     }

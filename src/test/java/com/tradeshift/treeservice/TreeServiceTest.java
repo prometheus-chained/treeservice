@@ -25,15 +25,15 @@ import static org.junit.Assert.assertTrue;
 public class TreeServiceTest {
     private static final NodeDTO root = NodeDTO.builder()
                                                .data("root")
-                                               .chilren(NodeDTO.builder()
-                                                               .data("a")
-                                                               .chilren(NodeDTO.builder()
-                                                                               .data("c")
-                                                                               .build())
-                                                               .build())
-                                               .chilren(NodeDTO.builder()
-                                                               .data("b")
-                                                               .build())
+                                               .child(NodeDTO.builder()
+                                                             .data("a")
+                                                             .child(NodeDTO.builder()
+                                                                           .data("c")
+                                                                           .build())
+                                                             .build())
+                                               .child(NodeDTO.builder()
+                                                             .data("b")
+                                                             .build())
                                                .build();
 
     @Autowired
@@ -49,13 +49,13 @@ public class TreeServiceTest {
         NodeDTO rootDto = optional.get();
         assertEquals("root", rootDto.getData());
         assertEquals(0, rootDto.getHeight());
-        List<NodeDTO> chilrens = rootDto.getChilrens();
+        List<NodeDTO> chilrens = rootDto.getChildren();
         assertEquals(asList("a", "b"),
                      chilrens.stream().map(NodeDTO::getData).sorted().collect(toList()));
 
         Set<String> cNode = chilrens.stream()
                                     .filter(n -> n.getData().equals("a"))
-                                    .map(NodeDTO::getChilrens)
+                                    .map(NodeDTO::getChildren)
                                     .flatMap(Collection::stream)
                                     .map(NodeDTO::getData)
                                     .collect(Collectors.toSet());
@@ -69,21 +69,21 @@ public class TreeServiceTest {
         Optional<NodeDTO> root = treeService.getTree();
         assertTrue(root.isPresent());
 
-        List<NodeDTO> chilrens = root.get().getChilrens();
+        List<NodeDTO> chilrens = root.get().getChildren();
         NodeDTO a = getNode(chilrens, "a");
         NodeDTO b = getNode(chilrens, "b");
-        NodeDTO c = getNode(a.getChilrens(), "c");
+        NodeDTO c = getNode(a.getChildren(), "c");
 
         treeService.moveNode(c.getId(), b.getId());
 
         root = treeService.getTree();
         assertTrue(root.isPresent());
 
-        chilrens = root.get().getChilrens();
+        chilrens = root.get().getChildren();
         a = getNode(chilrens, "a");
         b = getNode(chilrens, "b");
-        c = getNode(b.getChilrens(), "c");
-        assertTrue(a.getChilrens().isEmpty());
+        c = getNode(b.getChildren(), "c");
+        assertTrue(a.getChildren().isEmpty());
     }
 
     private NodeDTO getNode(List<NodeDTO> chilrens, String data) {

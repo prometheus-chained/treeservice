@@ -7,10 +7,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.OptionalLong;
-import java.util.Set;
 
 import static java.util.OptionalLong.empty;
 
@@ -28,19 +26,19 @@ public class Node {
     private OptionalLong parent = empty();
     @ToString.Exclude
     @Builder.Default
-    private List<Node> chilrens = new ArrayList<>();
+    private List<Node> children = new ArrayList<>();
 
     public void setNewHeight(int newHeight) {
         height = newHeight;
-        chilrens.forEach(node -> node.setNewHeight(newHeight + 1));
+        children.forEach(node -> node.setNewHeight(newHeight + 1));
     }
 
     public void removeChild(Node node) {
-        chilrens.remove(node);
+        children.remove(node);
     }
 
     public void addChild(Node node) {
-        chilrens.add(node);
+        children.add(node);
     }
 
     public void setParent(long parentId) {
