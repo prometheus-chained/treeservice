@@ -6,8 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.OptionalLong;
 import java.util.Set;
+
+import static java.util.OptionalLong.empty;
 
 @Getter
 @Setter
@@ -20,12 +25,25 @@ public class Node {
     private int height;
     private String data;
     @Builder.Default
-    private OptionalLong parent = OptionalLong.empty();
+    private OptionalLong parent = empty();
     @ToString.Exclude
-    private Set<Node> chilrens;
+    @Builder.Default
+    private List<Node> chilrens = new ArrayList<>();
 
-    private void setNewHeight(int parentHeight) {
-        height = parentHeight + 1;
-        chilrens.forEach(node -> node.setNewHeight(height));
+    public void setNewHeight(int newHeight) {
+        height = newHeight;
+        chilrens.forEach(node -> node.setNewHeight(newHeight + 1));
+    }
+
+    public void removeChild(Node node) {
+        chilrens.remove(node);
+    }
+
+    public void addChild(Node node) {
+        chilrens.add(node);
+    }
+
+    public void setParent(long parentId) {
+        parent = OptionalLong.of(parentId);
     }
 }

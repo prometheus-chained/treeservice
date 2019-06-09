@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 
@@ -22,6 +23,11 @@ public class TreeDao {
     private static final String INSERT_NODE = "INSERT INTO nodes (data, parent) VALUES (?, ?)";
     private static final String[] INSERT_NODE_COLUMNS = new String[]{"id"};
     private static final String SELECT_NODE = "SELECT id, data, parent FROM nodes WHERE id = ?";
+    private static final String SELECT_ROOT_NODE = "SELECT id, data FROM nodes WHERE id IS NULL";
+    private static final String SELECT_CHILD_NODES = "SELECT id, data FROM nodes WHERE parent = ?";
+    private static final String DELETE_ALL = "DELETE FROM nodes";
+    private static final String UPDATE_NODE = "UPDATE nodes SET data = ?, parent = ? WHERE id = ?";
+    private static final int[] UPDATE_NODE_TYPEs = {Types.VARCHAR, Types.BIGINT, Types.BIGINT};
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -30,20 +36,40 @@ public class TreeDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Node save(Node node) {
+    public void save(Node node) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(con -> createInsertStatement(con, node), keyHolder);
 
         Number key = keyHolder.getKey();
         node.setId(key == null ? -1 : key.longValue());
-        return node;
+    }
+
+    public void update(Node node) {
+        Long parent = node.getParent().isPresent() ? node.getParent().getAsLong() : null;
+        jdbcTemplate.update(UPDATE_NODE,
+                            new Object[]{node.getData(), parent, node.getId()},
+                            UPDATE_NODE_TYPEs);
     }
 
     public Optional<Node> findById(long id) {
         return jdbcTemplate.query(SELECT_NODE, new Object[]{id}, this::mapRow)
                            .stream()
                            .findFirst();
+    }
+
+    public Optional<Node> findRoot() {
+        return jdbcTemplate.query(SELECT_ROOT_NODE, this::mapRow)
+                           .stream()
+                           .findFirst();
+    }
+
+    public List<Node> findChildNodes(long parentId) {
+        return jdbcTemplate.query(SELECT_CHILD_NODES, new Object[]{parentId}, this::mapRow);
+    }
+
+    public void deleteAll() {
+        jdbcTemplate.update(DELETE_ALL);
     }
 
     private Node mapRow(ResultSet rs, int rowNum) throws SQLException {

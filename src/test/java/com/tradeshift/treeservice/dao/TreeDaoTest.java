@@ -11,7 +11,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -24,10 +23,11 @@ public class TreeDaoTest {
 
     @Test
     public void insertTest() {
-        Node root = treeDao.save(Node.builder()
-                                     .height(0)
-                                     .data("root")
-                                     .build());
+        Node root = Node.builder()
+                        .height(0)
+                        .data("root")
+                        .build();
+        treeDao.save(root);
         assertNotEquals(-1, root.getId());
         Optional<Node> optionalNode = treeDao.findById(root.getId());
         assertTrue(optionalNode.isPresent());
