@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -73,7 +75,7 @@ public class TreeService {
 
             Node nodeToMove = index.get(nodeToMoveId);
             Node oldParent = index.get(nodeToMove.getParent()
-                                                 .orElseThrow(() -> new IllegalArgumentException("Unable to move root node")));
+                                                 .orElseThrow(() -> new BadRequestException("Unable to move root node")));
             Node newParent = index.get(newParentId);
 
             oldParent.removeChild(nodeToMove);
@@ -137,7 +139,7 @@ public class TreeService {
 
     private void checkNodeExists(long id) {
         if (!index.containsKey(id)) {
-            throw new IllegalArgumentException("Node #" + id + " not found");
+            throw new NotFoundException("Node #" + id + " not found");
         }
     }
 

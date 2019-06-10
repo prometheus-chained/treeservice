@@ -30,7 +30,7 @@ public class TreeApiController {
     public Response getSubtree(@PathParam("id") Long id) {
         Optional<NodeDTO> nodeDTO = id == null ? treeService.getTree() : treeService.getSubTree(id);
         return nodeDTO.map(n -> Response.ok(n).build())
-                      .orElse(Response.ok().build());
+                      .orElse(Response.status(Response.Status.NOT_FOUND).build());
     }
 
     @POST
