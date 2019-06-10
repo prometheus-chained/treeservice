@@ -124,3 +124,9 @@ Will move node with given `nodeId` to new parent with given `newParentId`.
 Will return subtree for given `nodeId` after it moved to new parent.
 Will return 404 if `nodeId` or `newParentId` not found.
 Will return 400 if `nodeId` is root node.
+
+
+## How to run
+```bash
+./gradlew bootRun
+```
