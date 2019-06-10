@@ -23,9 +23,9 @@ public class TreeDao {
     private static final String INSERT_NODE = "INSERT INTO nodes (data, parent) VALUES (?, ?)";
     private static final String[] INSERT_NODE_COLUMNS = new String[]{"id"};
     private static final String SELECT_NODE = "SELECT id, data, parent FROM nodes WHERE id = ?";
-    private static final String SELECT_ROOT_NODE = "SELECT id, data FROM nodes WHERE id IS NULL";
-    private static final String SELECT_CHILD_NODES = "SELECT id, data FROM nodes WHERE parent = ?";
-    private static final String DELETE_ALL = "DELETE FROM nodes";
+    private static final String SELECT_ROOT_NODE = "SELECT id, data, parent FROM nodes WHERE parent IS NULL";
+    private static final String SELECT_CHILD_NODES = "SELECT id, data, parent FROM nodes WHERE parent = ?";
+    private static final String DELETE_ALL = "DELETE FROM nodes WHERE id IS NOT NULL";
     private static final String UPDATE_NODE = "UPDATE nodes SET data = ?, parent = ? WHERE id = ?";
     private static final int[] UPDATE_NODE_TYPEs = {Types.VARCHAR, Types.BIGINT, Types.BIGINT};
 
@@ -59,9 +59,13 @@ public class TreeDao {
     }
 
     public Optional<Node> findRoot() {
-        return jdbcTemplate.query(SELECT_ROOT_NODE, this::mapRow)
-                           .stream()
-                           .findFirst();
+        List<Node> result = jdbcTemplate.query(SELECT_ROOT_NODE, this::mapRow);
+        if (result.size() > 1) {
+            throw new RuntimeException("Internal error, duplicated root nodes");
+        }
+        return result.isEmpty() ?
+               Optional.empty() :
+               Optional.of(result.get(0));
     }
 
     public List<Node> findChildNodes(long parentId) {
