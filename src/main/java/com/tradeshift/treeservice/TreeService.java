@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -66,7 +65,7 @@ public class TreeService {
     }
 
     @Transactional
-    public void moveNode(long nodeToMoveId, long newParentId) {
+    public NodeDTO moveNode(long nodeToMoveId, long newParentId) {
         lock.writeLock().lock();
         try {
             checkNodeExists(nodeToMoveId);
@@ -82,6 +81,8 @@ public class TreeService {
             nodeToMove.setParent(newParentId);
 
             treeDao.update(nodeToMove);
+
+            return NodeDTO.fromNode(nodeToMove);
         } finally {
             lock.writeLock().unlock();
         }
@@ -114,6 +115,7 @@ public class TreeService {
                 index.clear();
             }
             Node newNode = nodeDTO.toNode();
+            newNode.setNoParent();
             saveSubTree(newNode);
             newNode.setNewHeight(0);
             root = newNode;

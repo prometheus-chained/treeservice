@@ -44,4 +44,8 @@ public class Node {
     public void setParent(long parentId) {
         parent = OptionalLong.of(parentId);
     }
+
+    public void setNoParent() {
+        parent = OptionalLong.empty();
+    }
 }

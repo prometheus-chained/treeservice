@@ -40,11 +40,17 @@ public class TreeApiController {
         return Response.ok(nodeDTO).build();
     }
 
-
     @POST
     @Path("addsubtree/{id}")
     public Response newSubTree(@PathParam("id") long id, NodeDTO tree) {
         NodeDTO nodeDTO = treeService.addSubTree(id, tree);
+        return Response.ok(nodeDTO).build();
+    }
+
+    @GET
+    @Path("move/{nodeId}/to/{newParentId}")
+    public Response moveSubTree(@PathParam("nodeId") long nodeId, @PathParam("newParentId") long newParentId) {
+        NodeDTO nodeDTO = treeService.moveNode(nodeId, newParentId);
         return Response.ok(nodeDTO).build();
     }
 }

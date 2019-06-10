@@ -10,9 +10,8 @@ import lombok.Singular;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalLong;
 import java.util.stream.Collectors;
-
-import static java.util.Collections.emptyList;
 
 @Data
 @Builder(toBuilder = true)
@@ -20,6 +19,8 @@ import static java.util.Collections.emptyList;
 @AllArgsConstructor
 public class NodeDTO {
     private long id;
+    @EqualsAndHashCode.Exclude
+    private long parentId;
     @EqualsAndHashCode.Exclude
     private int height;
     @EqualsAndHashCode.Exclude
@@ -43,6 +44,7 @@ public class NodeDTO {
 
     public static NodeDTO fromNode(Node node) {
         return NodeDTO.builder()
+                      .parentId(node.getParent().orElse(0L))
                       .id(node.getId())
                       .height(node.getHeight())
                       .data(node.getData())
