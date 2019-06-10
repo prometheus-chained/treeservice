@@ -13,11 +13,13 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-neo4j")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-jersey")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework:spring-webmvc")
 
-    compile("org.neo4j", "neo4j", "3.5.6")
+    compile("com.h2database", "h2", "1.4.199")
+    compile("org.liquibase", "liquibase-core", "3.6.3")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

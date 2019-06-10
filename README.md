@@ -38,3 +38,89 @@ Each node should have the following info:
 We can only have docker and docker-compose on our machines, so your server needs to be ran using them.
 
 Please push your solution to GITHUB and share it with us so we can review it.
+
+
+## API 
+
+
+### Read tree
+```
+GET http://localhost:8080/subtree/
+Accept: application/json
+```
+Will return JSON with whole tree or empty body if there is no tree.
+
+
+### Read subtree
+```
+GET http://localhost:8080/subtree/{id}
+Accept: application/json
+```
+Will return JSON with subtree starting from node with given `id`.
+Will return 404 if node with given `id` not found.
+
+
+### Save new tree
+```
+POST http://localhost:8080/newtree/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "data": "root",
+  "children": [
+    {
+      "data": "a",
+      "children": [
+        {
+          "data": "c"
+        }
+      ]
+    },
+    {
+      "data": "b",
+      "children": [
+        {
+          "data": "d"
+        },
+        {
+          "data": "e"
+        }
+      ]
+    }
+  ]
+}
+```
+Will create new tree. If tree already exist old one would be deleted.
+
+
+### Add new subtree
+```
+POST http://localhost:8080/addsubtree/{id}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "data": "foo",
+  "children": [
+    {
+      "data": "bar",
+      "children": []
+    }
+  ]
+}
+```
+Add new subtree to existing node with given `id`.
+Will return added subtree.
+Will return 404 if node with given `id` does not exist.
+
+
+### Move subtree to other parent
+```
+GET http://localhost:8080/move/{nodeId}/to/{newParentId}
+Accept: application/json
+```
+Will move node with given `nodeId` to new parent with given `newParentId`.
+Will return subtree for given `nodeId` after it moved to new parent.
+Will return 404 if `nodeId` or `newParentId` not found.
+Will return 400 if `nodeId` is root node.
